@@ -27,7 +27,20 @@ class NodeTable {
     this.board[point.x][point.y] = value;
   }
 
-  findVoisins(point) {}
+  findVoisins(point) {
+    value = this.board[point.x][point.y];
+
+    if (this.board[point.x])
+      //source : stack exchange
+      for (let x = Math.max(0, point.x - 1); x <= Math.min(point.x + 1, rowLimit); x++) {
+        for (let y = Math.max(0, point.y - 1); y <= Math.min(point.y + 1, columnLimit); y++) {
+          if (x !== point.x || y !== point.y) {
+            console.log(myArray[x][y]);
+            sum += myArray[x][y];
+          }
+        }
+      }
+  }
 }
 
 var data = rawData.split('\n');
@@ -51,6 +64,7 @@ nodes.setPoint(S, 0);
 nodes.setPoint(E, 0);
 
 data = data.map((line) => line.split(''));
-console.log(nodes);
+data[S.x][S.y] = 'a';
+data[E.x][E.y] = 'z';
 
 currentNode = new Point(S.x, S.y);
