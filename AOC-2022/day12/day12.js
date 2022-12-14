@@ -1,8 +1,10 @@
 // Implémentation de l'algorithme de Dijkstra : https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 // A partir de sa decription (ie sans copier du code)
 
+const { AsyncLocalStorage } = require('async_hooks');
+
 fs = require('fs');
-// var data = fs.readFileSync('./AOC-2022/day12/input.txt', 'utf8');
+// const rawData = fs.readFileSync('./AOC-2022/day12/input.txt', 'utf8');
 const rawData = fs.readFileSync('./input.txt', 'utf8');
 
 ////
@@ -14,32 +16,90 @@ class Point {
     this.x = x;
     this.y = y;
   }
+
+  up() {
+    if (this.x - 1 > 0) {
+      this.x -= 1;
+    } else {
+      console.log('upper bound reached');
+    }
+  }
+
+  down() {
+    if (this.x + 1 < height) {
+      this.x += 1;
+    } else {
+      console.log('lower bound reached');
+    }
+  }
+
+  left() {
+    if (this.y - 1 > 0) {
+      this.y -= 1;
+    } else {
+      console.log('left bound reached');
+    }
+  }
+
+  right() {
+    if (this.y + 1 < length) {
+      this.y += 1;
+    } else {
+      console.log('right bound reached');
+    }
+  }
 }
 
 class NodeTable {
   constructor(array) {
     this.board = array;
-    this.columnLimit = array.length - 1;
-    this.rowLimit = array[0].length - 1;
+    this.rowLimit = array.length - 1;
+    this.columnLimit = array[0].length - 1;
   }
 
   setPoint(point, value) {
-    this.board[point.x][point.y] = value;
+    if ((point.x >= 0) & (point.x <= this.rowLimit) & (point.y >= 0) & (point.y <= this.columnLimit)) {
+      this.board[point.x][point.y] = value;
+    } else {
+      console.log("point can't be set : out of bound");
+    }
   }
 
   findVoisins(point) {
-    value = this.board[point.x][point.y];
+    var currentValue = data[point.x][point.y].charCodeAt(0);
+    var voisins = [];
 
-    if (this.board[point.x])
-      //source : stack exchange
-      for (let x = Math.max(0, point.x - 1); x <= Math.min(point.x + 1, rowLimit); x++) {
-        for (let y = Math.max(0, point.y - 1); y <= Math.min(point.y + 1, columnLimit); y++) {
-          if (x !== point.x || y !== point.y) {
-            console.log(myArray[x][y]);
-            sum += myArray[x][y];
-          }
-        }
-      }
+    if (point.x != this.rowLimit && data[point.x + 1][point.y].charCodeAt(0) == currentValue + 1) {
+      voisins.push({ x: point.x + 1, y: point.y });
+      console.log(getPoint(voisins[voisins.length - 1]));
+    }
+    if (point.x != 0 && data[point.x - 1][point.y].charCodeAt(0) == currentValue + 1) {
+      voisins.push({ x: point.x - 1, y: point.y });
+      console.log(getPoint(voisins[voisins.length - 1]));
+    }
+    if (point.y != this.columnLimit && data[point.x][point.y + 1].charCodeAt(0) == currentValue + 1) {
+      voisins.push({ x: point.x, y: point.y + 1 });
+      console.log(getPoint(voisins[voisins.length - 1]));
+    }
+    if (point.y != 0 && data[point.x][point.y - 1].charCodeAt(0) == currentValue + 1) {
+      voisins.push({ x: point.x, y: point.y - 1 });
+      console.log(getPoint(voisins[voisins.length - 1]));
+    }
+
+    // if (point.x != this.rowLimit) {
+    //   voisins.push(data[point.x - 1][point.y]);
+    // }
+    // if (point.x != 0) {
+    //   voisins.push(data[point.x + 1][point.y]);
+    // }
+    // if (point.y != this.columnLimit) {
+    //   voisins.push(data[point.x][point.y + 1]);
+    // }
+    // if (point.y != 0) {
+    //   voisins.push(data[point.x][point.y - 1]);
+    // }
+
+    return voisins;
   }
 }
 
@@ -49,13 +109,13 @@ var data = rawData.split('\n');
 ////Initialisation
 ////
 
-const heightTable = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+// const heightTable = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
 ///Création du tableau contenant les nodes (la "map")
-const height = data.length;
-const length = data[0].length;
+const height = data.length - 1;
+const length = data[0].length - 1;
 
-var nodes = data.slice(0).map((line) => new Array(length).fill(-1));
+var nodes = data.slice(0).map((line) => new Array(length + 1).fill(-1));
 nodes = new NodeTable(nodes);
 
 const S = new Point(20, 0);
@@ -67,4 +127,33 @@ data = data.map((line) => line.split(''));
 data[S.x][S.y] = 'a';
 data[E.x][E.y] = 'z';
 
+const getPoint = (point) => {
+  return data[point.x][point.y];
+};
+
+////
+///////////////////
+////
+
 currentNode = new Point(S.x, S.y);
+
+test = new Point(34, 2);
+
+console.log(getPoint(test));
+
+console.log(nodes.findVoisins(test));
+
+
+
+if() {
+
+} else {
+
+  for (var voisinsIndex = 0 ; voisinsIndex < voisins.length; voisinsIndex++) {
+    return algoBestPath(voisins[voisinsIndex], currentDistance)
+  }
+}
+
+
+
+
