@@ -1,8 +1,8 @@
 const { cpSync } = require('fs');
 
 fs = require('fs');
-const rawData = fs.readFileSync('./AOC-2022/day14/input.txt', 'utf8');
-// const rawData = fs.readFileSync('./input.txt', 'utf8');
+// const rawData = fs.readFileSync('./AOC-2022/day14/input.txt', 'utf8');
+const rawData = fs.readFileSync('./input.txt', 'utf8');
 
 ///Initializing the cave plan
 var cavePlan = new Array(200);
@@ -64,8 +64,6 @@ for (var i = 0; i < lines.length; i++) {
   }
 }
 ///
-cavePlan[17][499] = 'X';
-
 cavePlanPrinter(cavePlan);
 ////////////////////
 // startingPoint = { x: 498, y: 1 };
@@ -98,47 +96,45 @@ cavePlanPrinter(cavePlan);
 // }
 
 const fallingSand = (startingPoint) => {
-  if (i === cavePlan.length - 2) {
-    console.log('ERROR_no bound');
-    return [false];
-  }
-
   for (var i = startingPoint.y; i < cavePlan.length - 1; i++) {
-    console.log(cavePlan[i + 1][startingPoint.x]);
+    if (i === cavePlan.length - 2) {
+      console.log('ERROR_no bound');
+      return [false];
+    }
 
-    if (cavePlan[i + 1][startingPoint.x] === 'X' || cavePlan[i + 1][startingPoint.x] === 'X') {
-      console.log(i);
-      if (cavePlan[i + 1][startingPoint.x - 1] === 'X' || cavePlan[i + 1][startingPoint.x - 1] === 'X') {
-        if (cavePlan[i + 1][startingPoint.x + 1] === 'X' || cavePlan[i + 1][startingPoint.x + 1] === 'X') {
-          console.log(i, startingPoint.x + 1);
-          cavePlan[i][startingPoint.x + 1] = 'o';
-          console.log(i, startingPoint.x + 1);
+    if (cavePlan[i + 1][startingPoint.x] === 'o' || cavePlan[i + 1][startingPoint.x] === '#') {
+      if (cavePlan[i + 1][startingPoint.x - 1] === 'o' || cavePlan[i + 1][startingPoint.x - 1] === '#') {
+        if (cavePlan[i + 1][startingPoint.x + 1] === 'o' || cavePlan[i + 1][startingPoint.x + 1] === '#') {
+          cavePlan[i][startingPoint.x] = 'o';
 
-          cavePlanPrinter(cavePlan);
+          // cavePlanPrinter(cavePlan);
 
           return [true, { x: startingPoint.x, y: i }];
         } else {
-          console.log('right free');
-          // return fallingSand({ x: startingPoint.x + 1, y: i });
+          // console.log('right free');
+          return fallingSand({ x: startingPoint.x + 1, y: i });
         }
       } else {
-        console.log('left free');
-        // return fallingSand({ x: startingPoint.x - 1, y: i });
+        // console.log('left free');
+        return fallingSand({ x: startingPoint.x - 1, y: i });
       }
     }
   }
 };
 
-// COUNTER = 0;
-// inside = true;
-// while (inside) {
-//   COUNTER++;
-//   inside = fallingSand({ x: 498, y: 0 })[0];
-// }
-
-for (var i = 0; i < 2; i++) {
-  inside = fallingSand({ x: 498, y: 1 });
-  console.log(inside);
+COUNTER = 0;
+inside = true;
+while (inside) {
+  COUNTER++;
+  inside = fallingSand({ x: 498, y: 0 })[0];
+  if (COUNTER % 10 == 0) {
+    cavePlanPrinter(cavePlan);
+  }
 }
 
-cavePlanPrinter(cavePlan);
+console.log(COUNTER);
+
+// for (var i = 0; i < 20; i++) {
+//   inside = fallingSand({ x: 499, y: 1 });
+//   console.log(inside);
+// }
