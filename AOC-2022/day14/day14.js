@@ -1,5 +1,3 @@
-const { cpSync } = require('fs');
-
 fs = require('fs');
 // const rawData = fs.readFileSync('./AOC-2022/day14/input.txt', 'utf8');
 const rawData = fs.readFileSync('./input.txt', 'utf8');
@@ -63,38 +61,10 @@ for (var i = 0; i < lines.length; i++) {
     drawLine(line[l], line[l + 1]);
   }
 }
-///
+///1er print de la cave (je suis quelqu'un de très visuel)
 cavePlanPrinter(cavePlan);
-////////////////////
-// startingPoint = { x: 498, y: 1 };
-// if (i === cavePlan.length - 2) {
-//   console.log('ERROR_no bound');
-//   return [false];
-// }
-
-// for (var i = startingPoint.y; i < cavePlan.length - 1; i++) {
-//   console.log(cavePlan[i + 1][startingPoint.x]);
-
-//   if (cavePlan[i + 1][startingPoint.x] === '#' || cavePlan[i + 1][startingPoint.x] === 'X') {
-//     console.log(i);
-//     if (cavePlan[i + 1][startingPoint.x - 1] === '#' || cavePlan[i + 1][startingPoint.x - 1] === 'X') {
-//       if (cavePlan[i + 1][startingPoint.x + 1] === '#' || cavePlan[i + 1][startingPoint.x + 1] === 'X') {
-//         console.log(i, startingPoint.x + 1);
-//         cavePlan[i][startingPoint.x + 1] = 'o';
-//         console.log(i, startingPoint.x + 1);
-
-//         console.log([true, { x: startingPoint.x, y: i }]);
-//       } else {
-//         console.log('right free');
-//         // return fallingSand({ x: startingPoint.x + 1, y: i });
-//       }
-//     } else {
-//       console.log('left free');
-//       // return fallingSand({ x: startingPoint.x - 1, y: i });
-//     }
-//   }
-// }
-
+///
+///Fonction récursive de falling des grains
 const fallingSand = (startingPoint) => {
   for (var i = startingPoint.y; i < cavePlan.length - 1; i++) {
     if (i === cavePlan.length - 2) {
@@ -121,7 +91,8 @@ const fallingSand = (startingPoint) => {
     }
   }
 };
-
+///
+/// COUNTING
 COUNTER = 0;
 inside = true;
 while (inside) {
@@ -132,9 +103,4 @@ while (inside) {
   }
 }
 console.log(COUNTER - 1);
-
-// for (var i = 0; i < 37; i++) {
-//   inside = fallingSand({ x: 499, y: 1 });
-//   console.log(inside);
-//   cavePlanPrinter(cavePlan);
-// }
+///
