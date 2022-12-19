@@ -131,7 +131,7 @@ while (inside) {
     cavePlanPrinter(cavePlan);
   }
 }
-console.log(COUNTER);
+console.log(COUNTER - 1);
 
 // for (var i = 0; i < 37; i++) {
 //   inside = fallingSand({ x: 499, y: 1 });
