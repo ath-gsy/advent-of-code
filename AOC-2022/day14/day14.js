@@ -126,15 +126,15 @@ COUNTER = 0;
 inside = true;
 while (inside) {
   COUNTER++;
-  inside = fallingSand({ x: 498, y: 0 })[0];
+  inside = fallingSand({ x: 499, y: 1 })[0];
   if (COUNTER % 10 == 0) {
     cavePlanPrinter(cavePlan);
   }
 }
-
 console.log(COUNTER);
 
-// for (var i = 0; i < 20; i++) {
+// for (var i = 0; i < 37; i++) {
 //   inside = fallingSand({ x: 499, y: 1 });
 //   console.log(inside);
+//   cavePlanPrinter(cavePlan);
 // }
