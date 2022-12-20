@@ -15,11 +15,11 @@ type MixValue struct {
 }
 
 var (
-	//go:embed exemple.txt
+	//go:embed input.txt
 	input string
 
-	globalMap   = make(map[int]MixValue)
-	totalLength = 0
+	globalMap       = make(map[int]MixValue)
+	totalLength int = 0
 )
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 }
 
 func main() {
-	fmt.Println(globalMap)
+	// fmt.Println(globalMap)
 
 	originalOrder := 0
 	for originalOrder < totalLength {
@@ -45,11 +45,55 @@ func main() {
 		originalOrder++
 	}
 
-	fmt.Println(globalMap)
+	// fmt.Println(globalMap)
 
+	var finalOrder []int
+
+	for i := 0; i < totalLength; i++ {
+		finalOrder = append(finalOrder, globalMap[mapkey(i)].value)
+	}
+
+	var index0 int
+	for id, v := range finalOrder {
+		if v == 0 {
+			index0 = id
+		}
+	}
+	fmt.Println(finalOrder)
+	fmt.Println(index0)
+
+	var sumCoordinates int
+	var counter int
+	currId := index0
+	for counter != 1000 {
+		counter++
+		currId++
+		if currId == totalLength {
+			currId = 0
+		}
+	}
+	sumCoordinates += finalOrder[currId]
+	for counter != 2000 {
+		counter++
+		currId++
+		if currId == totalLength {
+			currId = 0
+		}
+	}
+	sumCoordinates += finalOrder[currId]
+	for counter != 3000 {
+		counter++
+		currId++
+		if currId == totalLength {
+			currId = 0
+		}
+	}
+	sumCoordinates += finalOrder[currId]
+
+	fmt.Println(sumCoordinates)
 }
 
-func mapkey(id int) (key int) { //, ok bool en sortie enlevé
+func mapkey(id int) (key int) { // cherche la clé de l'élément qui est classé à l'indice i ("", ok bool" : en sortie, enlevé)
 	for k, v := range globalMap {
 		if v.mixingOrder == id {
 			key = k
@@ -65,6 +109,10 @@ func mixOrder(originalOrder int) {
 	var mixOrder = globalMap[originalOrder].mixingOrder
 
 	var newOrder = (mixOrder + displacementValue) % totalLength
+
+	if newOrder < 0 {
+		newOrder = totalLength + newOrder
+	}
 
 	newEntry := globalMap[originalOrder]
 	newEntry.mixingOrder = newOrder
@@ -103,7 +151,7 @@ func mixOrder(originalOrder int) {
 		}
 	} else if displacementValue < 0 { //...vers le haut
 		if newOrder > mixOrder { //cas particulier overlap
-			for i := mixOrder; i > 1; i-- {
+			for i := mixOrder; i > 0; i-- {
 				tempMapKey = mapkey(i - 1)
 				tempValue = globalMap[tempMapKey]
 				tempValue.mixingOrder = i
@@ -132,4 +180,5 @@ func mixOrder(originalOrder int) {
 	}
 
 	globalMap[originalOrder] = newEntry
+
 }
