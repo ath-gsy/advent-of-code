@@ -1,7 +1,5 @@
 // Implémentation de l'algorithme de Dijkstra : https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
-// A partir de sa decription (ie sans copier du code)
-
-const { AsyncLocalStorage } = require('async_hooks');
+// A partir de sa decription (ie sans copier du code ou pseudo-code)
 
 fs = require('fs');
 // const rawData = fs.readFileSync('./AOC-2022/day12/input.txt', 'utf8');
@@ -17,6 +15,7 @@ class Point {
     this.y = y;
   }
 
+  //moving methods
   up() {
     if (this.x - 1 > 0) {
       this.x -= 1;
@@ -69,22 +68,26 @@ class NodeTable {
     var currentValue = data[point.x][point.y].charCodeAt(0);
     var voisins = [];
 
-    if (point.x != this.rowLimit && data[point.x + 1][point.y].charCodeAt(0) == currentValue + 1) {
-      voisins.push({ x: point.x + 1, y: point.y });
-      console.log(getPoint(voisins[voisins.length - 1]));
+    if (point.x != this.rowLimit && data[point.x + 1][point.y].charCodeAt(0) <= currentValue + 1 && this.board[point.x + 1][point.y] == 10000) {
+      voisins.push({ diffValue: data[point.x + 1][point.y].charCodeAt(0) - currentValue, x: point.x + 1, y: point.y });
+      // console.log(getPoint(voisins[voisins.length - 1]));
     }
-    if (point.x != 0 && data[point.x - 1][point.y].charCodeAt(0) == currentValue + 1) {
-      voisins.push({ x: point.x - 1, y: point.y });
-      console.log(getPoint(voisins[voisins.length - 1]));
+    if (point.x != 0 && data[point.x - 1][point.y].charCodeAt(0) <= currentValue + 1 && this.board[point.x - 1][point.y] == 10000) {
+      voisins.push({ diffValue: data[point.x - 1][point.y].charCodeAt(0) - currentValue, x: point.x - 1, y: point.y });
+      // console.log(getPoint(voisins[voisins.length - 1]));
     }
-    if (point.y != this.columnLimit && data[point.x][point.y + 1].charCodeAt(0) == currentValue + 1) {
-      voisins.push({ x: point.x, y: point.y + 1 });
-      console.log(getPoint(voisins[voisins.length - 1]));
+    if (point.y != this.columnLimit && data[point.x][point.y + 1].charCodeAt(0) <= currentValue + 1 && this.board[point.x][point.y + 1] == 10000) {
+      voisins.push({ diffValue: data[point.x][point.y + 1].charCodeAt(0) - currentValue, x: point.x, y: point.y + 1 });
+      // console.log(getPoint(voisins[voisins.length - 1]));
     }
-    if (point.y != 0 && data[point.x][point.y - 1].charCodeAt(0) == currentValue + 1) {
-      voisins.push({ x: point.x, y: point.y - 1 });
-      console.log(getPoint(voisins[voisins.length - 1]));
+    if (point.y != 0 && data[point.x][point.y - 1].charCodeAt(0) <= currentValue + 1 && this.board[point.x][point.y - 1] == 10000) {
+      voisins.push({ diffValue: data[point.x][point.y - 1].charCodeAt(0) - currentValue, x: point.x, y: point.y - 1 });
+      // console.log(getPoint(voisins[voisins.length - 1]));
     }
+
+    voisins.sort(function (a, b) {
+      return b.diffValue - a.diffValue;
+    });
 
     // if (point.x != this.rowLimit) {
     //   voisins.push(data[point.x - 1][point.y]);
@@ -101,6 +104,18 @@ class NodeTable {
 
     return voisins;
   }
+
+  nodesPrinter() {
+    var totalString = '';
+    for (var i = 0; i < this.board.length; i++) {
+      totalString += this.board[i].join('') + '\n';
+    }
+    fs.writeFile('./nodesTable.txt', totalString, (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+  }
 }
 
 var data = rawData.split('\n');
@@ -115,7 +130,7 @@ var data = rawData.split('\n');
 const height = data.length - 1;
 const length = data[0].length - 1;
 
-var nodes = data.slice(0).map((line) => new Array(length + 1).fill(-1));
+var nodes = data.slice(0).map((line) => new Array(length + 1).fill(10000));
 nodes = new NodeTable(nodes);
 
 const S = new Point(20, 0);
@@ -123,13 +138,17 @@ const E = new Point(20, 43);
 nodes.setPoint(S, 0);
 nodes.setPoint(E, 0);
 
+nodes.nodesPrinter();
+
 data = data.map((line) => line.split(''));
 data[S.x][S.y] = 'a';
 data[E.x][E.y] = 'z';
 
+///
 const getPoint = (point) => {
   return data[point.x][point.y];
 };
+///
 
 ////
 ///////////////////
@@ -137,23 +156,29 @@ const getPoint = (point) => {
 
 currentNode = new Point(S.x, S.y);
 
-test = new Point(34, 2);
+const test = new Point(5, 2);
 
-console.log(getPoint(test));
+// console.log(getPoint(test));
 
 console.log(nodes.findVoisins(test));
 
+// const stepAction = (point) => {
 
+// }
 
-if() {
+var tries = new Array(500);
 
-} else {
+var stepList = new Array(100);
+const pathTry = (stepList) => {};
 
-  for (var voisinsIndex = 0 ; voisinsIndex < voisins.length; voisinsIndex++) {
-    return algoBestPath(voisins[voisinsIndex], currentDistance)
-  }
-}
+// for (var voisinsIndex = 0; voisinsIndex < voisins.length; voisinsIndex++) {
+//   return algoBestPath(voisins[voisinsIndex], currentDistance);
+// }
 
+// if () {
 
-
-
+// } else {
+//   for (var voisinsIndex = 0; voisinsIndex < voisins.length; voisinsIndex++) {
+//     return algoBestPath(voisins[voisinsIndex], currentDistance);
+//   }
+// }
