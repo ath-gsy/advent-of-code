@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/x509"
 	_ "embed"
 	"fmt"
 	"strconv"
@@ -22,7 +21,7 @@ type WaitingMonkeys struct {
 }
 
 var (
-	//go:embed exemple.txt
+	//go:embed input.txt
 	input string
 
 	orderTable []string
@@ -73,25 +72,39 @@ func main() {
 	fmt.Println(monkeysMap)
 	fmt.Println(orderTable)
 
-	var newOrderTable []string
-	for _, monkeyName := range orderTable {
-		monkey := monkeysMap[monkeyName] //copy of the map element
-		if monkey.number != -1 {
+	for monkeysMap["root"].number == -1 {
+		var newOrderTable []string
+		for _, monkeyName := range orderTable {
+			monkey := monkeysMap[monkeyName] //copy of the map element
+			if monkey.number != -1 {
 
-			receiveNumber(monkeyName, monkey.number)
+				receiveNumber(monkeyName, monkey.number)
 
-		} else if {
-			
+			} else if monkey.monkey1Number != -1 && monkey.monkey2Number != -1 {
+				var result int
+				if monkey.operation == "+" {
+					result = monkey.monkey1Number + monkey.monkey2Number
+				} else if monkey.operation == "*" {
+					result = monkey.monkey1Number * monkey.monkey2Number
+				} else if monkey.operation == "-" {
+					result = monkey.monkey1Number - monkey.monkey2Number
+				} else if monkey.operation == "/" {
+					result = monkey.monkey1Number / monkey.monkey2Number
+				}
+				monkey.number = result
+				monkeysMap[monkeyName] = monkey
+				receiveNumber(monkeyName, result)
 
+			} else {
+				newOrderTable = append(newOrderTable, monkeyName) // leave the ones who didn't give information yet in the orderTable
+			}
+			// monkeysMap[monkeyName] = monkey
 		}
-		else {
-			newOrderTable = append(newOrderTable, monkeyName) // leave the ones who didn't give information yet
-		}
-		// monkeysMap[monkeyName] = monkey
+		orderTable = newOrderTable
 	}
-	orderTable = newOrderTable
 
 	fmt.Println(orderTable)
 	fmt.Println(monkeysMap)
+	fmt.Println(monkeysMap["root"].number)
 
 }
