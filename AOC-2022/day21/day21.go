@@ -69,8 +69,8 @@ func receiveNumber(monkeyYeller string, number int) { // receiveNumber from monk
 }
 
 func main() {
-	fmt.Println(monkeysMap)
-	fmt.Println(orderTable)
+	// fmt.Println(monkeysMap)
+	// fmt.Println(orderTable)
 
 	for monkeysMap["root"].number == -1 {
 		var newOrderTable []string
@@ -103,8 +103,8 @@ func main() {
 		orderTable = newOrderTable
 	}
 
-	fmt.Println(orderTable)
-	fmt.Println(monkeysMap)
+	// fmt.Println(orderTable)
+	// fmt.Println(monkeysMap)
 	fmt.Println(monkeysMap["root"].number)
 
 }
