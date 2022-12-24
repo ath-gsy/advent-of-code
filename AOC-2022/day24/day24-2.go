@@ -1,4 +1,4 @@
-package other
+package main
 
 import (
 	_ "embed"
@@ -9,7 +9,23 @@ import (
 	"time"
 )
 
-func mapPlanPrinter(mapPlan [][]string) {
+func minArray(array []int) int {
+	min := array[0]
+	for _, value := range array {
+		if value < min {
+			min = value
+		}
+	}
+	return min
+}
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func mapPlanPrinter(mapPlan [][]string, theExpeditionPosition Expedition) {
 	f, err := os.Create("mapPlan.ext") // création d'un fichier .ext car avast m'embête avec les fichiers .txt
 	if err != nil {
 		fmt.Println(err)
@@ -104,8 +120,19 @@ func (wind *Wind) detectObstacle(mapPlan [][]string) bool {
 }
 
 type TimeFrame struct {
-	windPositions map[Position][]Wind
-	mapPlan       [][]string
+	windPositions      map[Position][]Wind
+	mapPlan            [][]string
+	expeditionPosition Expedition
+}
+type TimeLine struct {
+	timeFrames []TimeFrame
+}
+
+func (timeLine *TimeLine) addTimeFrame(timeFrame TimeFrame) {
+	timeLine.timeFrames = append(timeLine.timeFrames, timeFrame)
+}
+func (timeLine *TimeLine) removeLastTimeFrame() {
+	timeLine.timeFrames = timeLine.timeFrames[:len(timeLine.timeFrames)-1]
 }
 
 type Expedition struct {
@@ -137,10 +164,9 @@ var (
 	//go:embed input.txt
 	input string
 
-	timeFrames   []TimeFrame
-	mapPlanModel [][]string
-
-	theExpeditionPosition Expedition
+	ALLTimeLines   []TimeLine
+	mapPlanModel   [][]string
+	targetPosition Position
 )
 
 func init() {
@@ -162,83 +188,44 @@ func init() {
 	// mapPlanPrinter(mapPlanModel) // prints E in the first position because theExpedition.position is not initialized yet
 	////////////////////////
 
-	/////// create initial TimeFrame
-	/// create initial WindMap
-	windPositions := make(map[Position][]Wind)
-	for x, line := range content {
-		for y, char := range line {
-			switch char {
-			case '>':
-				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 0})
-			case 'v':
-				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 1})
-			case '<':
-				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 2})
-			case '^':
-				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 3})
-			}
+	yend := 0
+	for id, elem := range mapPlanModel[len(mapPlanModel)-1] {
+		if elem == "." {
+			yend = id
+			break
 		}
-		///
-		/// create initial mapPlan
-		mapPlan := make([][]string, len(mapPlanModel))
-		for i := range mapPlan {
-			mapPlan[i] = make([]string, len(mapPlanModel[i]))
-			copy(mapPlan[i], mapPlanModel[i])
-		}
-		for position, winds := range windPositions {
-			switch winds[0].direction {
-			case 0:
-				mapPlan[position.x][position.y] = ">"
-			case 1:
-				mapPlan[position.x][position.y] = "v"
-			case 2:
-				mapPlan[position.x][position.y] = "<"
-			case 3:
-				mapPlan[position.x][position.y] = "^"
-			}
-		}
-		// mapPlanPrinter(mapPlan)
-		// mapWindPrinter(mapPlan) has been created after
-		///
-		timeFrames = append(timeFrames, TimeFrame{windPositions, mapPlan})
-		////////////////////////
-
-		// create expedition
-		ystart := 0
-		for id, elem := range mapPlanModel[0] {
-			if elem == "." {
-				ystart = id
-				break
-			}
-		}
-		theExpeditionPosition = Expedition{Position{0, ystart}}
-		mapPlanPrinter(mapPlan)
-		////////////////////////
 	}
+	targetPosition = Position{len(mapPlanModel) - 1, yend}
+	fmt.Print(targetPosition)
+
+	ALLTimeLines = make([]TimeLine, 0)
 }
 
-func part1() {
-	time.Sleep(1 * time.Second)
+func nextRound(timeLine TimeLine, MinuteCounter int) int {
 
-	MINUTE_COUNTER := 0
-	for MINUTE_COUNTER < 10 { // a remplacer par une condition sur le déplacement de l'expédition
+	if MinuteCounter == 0 {
+		// add to TimeFrames
+		ALLTimeLines = append(ALLTimeLines, timeLine)
+		return -1
 
-		/////// create new TimeFrame
+	} else {
+
+		lastFrame := timeLine.timeFrames[len(timeLine.timeFrames)-1]
 
 		// create new windPositions
 		newWindPositions := make(map[Position][]Wind)
-		for _, winds := range timeFrames[len(timeFrames)-1].windPositions {
+		for _, winds := range lastFrame.windPositions {
 			for _, wind := range winds {
-				if wind.detectObstacle(timeFrames[len(timeFrames)-1].mapPlan) {
+				if wind.detectObstacle(lastFrame.mapPlan) {
 					switch wind.direction {
 					case 0:
 						newWindPositions[Position{wind.position.x, 1}] = append(newWindPositions[Position{wind.position.x, 1}], Wind{Position{wind.position.x, 1}, wind.direction})
 					case 1:
 						newWindPositions[Position{1, wind.position.y}] = append(newWindPositions[Position{1, wind.position.y}], Wind{Position{1, wind.position.y}, wind.direction})
 					case 2:
-						newWindPositions[Position{wind.position.x, len(timeFrames[len(timeFrames)-1].mapPlan[0]) - 2}] = append(newWindPositions[Position{wind.position.x, len(timeFrames[len(timeFrames)-1].mapPlan[0]) - 2}], Wind{Position{wind.position.x, len(timeFrames[len(timeFrames)-1].mapPlan[0]) - 2}, wind.direction})
+						newWindPositions[Position{wind.position.x, len(lastFrame.mapPlan[0]) - 2}] = append(newWindPositions[Position{wind.position.x, len(lastFrame.mapPlan[0]) - 2}], Wind{Position{wind.position.x, len(lastFrame.mapPlan[0]) - 2}, wind.direction})
 					case 3:
-						newWindPositions[Position{len(timeFrames[len(timeFrames)-1].mapPlan) - 2, wind.position.y}] = append(newWindPositions[Position{len(timeFrames[len(timeFrames)-1].mapPlan) - 2, wind.position.y}], Wind{Position{len(timeFrames[len(timeFrames)-1].mapPlan) - 2, wind.position.y}, wind.direction})
+						newWindPositions[Position{len(lastFrame.mapPlan) - 2, wind.position.y}] = append(newWindPositions[Position{len(lastFrame.mapPlan) - 2, wind.position.y}], Wind{Position{len(lastFrame.mapPlan) - 2, wind.position.y}, wind.direction})
 					}
 				} else {
 					switch wind.direction {
@@ -257,33 +244,117 @@ func part1() {
 		// create new mapPlan
 		newMapPlan := make([][]string, len(mapPlanModel))
 		newMapPlan = mapPlanCreator(newWindPositions, newMapPlan)
-		mapWindPrinter(newMapPlan)
+		// mapWindPrinter(newMapPlan)
+		// time.Sleep(time.Second / 2)
+
+		// analyse new ExpeditionPosition
+		newExpeditionPosition := lastFrame.expeditionPosition // still the last here !!
+		freePositions := newExpeditionPosition.getPossiblePositions(newMapPlan)
+
+		//duplicating the timeLine
+		newTimeLine := TimeLine{timeLine.timeFrames}
+
+		if len(freePositions) == 0 {
+			fmt.Println("no more free positions(number ", len(ALLTimeLines)-1, "in ALLTimeLines)")
+			newTimeLine.addTimeFrame(TimeFrame{newWindPositions, newMapPlan, newExpeditionPosition})
+			ALLTimeLines = append(ALLTimeLines, newTimeLine)
+			return -2
+		}
+
+		var nextSteps []int
+		for _, freePosition := range freePositions {
+			newTimeLine.addTimeFrame(TimeFrame{newWindPositions, newMapPlan, newExpeditionPosition})
+			if freePosition.x == targetPosition.x && freePosition.y == targetPosition.y {
+				ALLTimeLines = append(ALLTimeLines, newTimeLine)
+				fmt.Print("found it ! with: ", len(newTimeLine.timeFrames), " steps (number ", len(ALLTimeLines)-1, "in ALLTimeLines)")
+				return len(newTimeLine.timeFrames)
+			} else {
+				nextSteps = append(nextSteps, nextRound(newTimeLine, MinuteCounter-1))
+			}
+			newTimeLine.removeLastTimeFrame()
+		}
+		return max(0, minArray(nextSteps))
+	}
+}
+
+func timeLineVizualizer(timeLine TimeLine) {
+
+	mapPlanPrinter(mapPlanModel, timeLine.timeFrames[0].expeditionPosition)
+	time.Sleep(1 * time.Second)
+	for _, timeFrame := range timeLine.timeFrames {
+		mapWindPrinter(timeFrame.mapPlan)
 		time.Sleep(time.Second / 2)
-		// add to TimeFrames
-		timeFrames = append(timeFrames, TimeFrame{newWindPositions, newMapPlan})
-		////////////////////////
+		mapPlanPrinter(timeFrame.mapPlan, timeFrame.expeditionPosition)
+		time.Sleep(1 * time.Second)
+	}
+}
 
-		/////// expedition analyse
+func part1() {
 
-		freePositions := theExpeditionPosition.getPossiblePositions(newMapPlan)
-
-		fmt.Println(freePositions)
-
-		if len(freePositions) > 1 {
-			theExpeditionPosition.updatePosition(freePositions[1])
-		} else if len(freePositions) == 1 {
-			theExpeditionPosition.updatePosition(freePositions[0])
-		} else {
-			fmt.Println("no more free positions")
+	/////// create initial TimeFrame
+	/// create initial WindMap
+	windPositions := make(map[Position][]Wind)
+	content := strings.Split(input, "\n")
+	for x, line := range content {
+		for y, char := range line {
+			switch char {
+			case '>':
+				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 0})
+			case 'v':
+				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 1})
+			case '<':
+				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 2})
+			case '^':
+				windPositions[Position{x, y}] = append(windPositions[Position{x, y}], Wind{Position{x, y}, 3})
+			}
+		}
+	}
+	/// create initial mapPlan
+	mapPlan := make([][]string, len(mapPlanModel))
+	for i := range mapPlan {
+		mapPlan[i] = make([]string, len(mapPlanModel[i]))
+		copy(mapPlan[i], mapPlanModel[i])
+	}
+	for position, winds := range windPositions {
+		switch winds[0].direction {
+		case 0:
+			mapPlan[position.x][position.y] = ">"
+		case 1:
+			mapPlan[position.x][position.y] = "v"
+		case 2:
+			mapPlan[position.x][position.y] = "<"
+		case 3:
+			mapPlan[position.x][position.y] = "^"
+		}
+	}
+	/// create initial expeditionPosition
+	var InitialExpeditionPosition Expedition
+	ystart := 0
+	for id, elem := range mapPlanModel[0] {
+		if elem == "." {
+			ystart = id
 			break
 		}
-		mapPlanPrinter(newMapPlan)
-		////////////////////////
-
-		//counter
-		MINUTE_COUNTER++
-		time.Sleep(2 * time.Second)
 	}
+	InitialExpeditionPosition = Expedition{Position{0, ystart}}
+	/// finalize initial timeFrame
+	initialTimeFrame := TimeFrame{windPositions, mapPlan, InitialExpeditionPosition}
+	/// create timeLine // which will be modified each Round
+	var timeLine TimeLine
+	timeLine.addTimeFrame(initialTimeFrame)
+	////////////////////////
+
+	mapPlan = mapPlanCreator(windPositions, mapPlan)
+	mapPlanPrinter(mapPlan, InitialExpeditionPosition)
+
+	// timeLineVizualizer(timeLine)
+
+	/////// calculating all possible timeLines :
+	/////// nextRound : recursive function that adds a timeLine when the Expedition is blocked or achieves last destination
+
+	MinuteCounter := 500
+	fmt.Println(nextRound(timeLine, MinuteCounter), len(ALLTimeLines))
+
 }
 
 func main() {
@@ -292,5 +363,6 @@ func main() {
 	fmt.Print("\npart1: ")
 	part1()
 	fmt.Println(time.Since(start))
+	timeLineVizualizer(ALLTimeLines[0])
 
 }
