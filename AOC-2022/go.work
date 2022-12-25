@@ -5,5 +5,6 @@ use (
 	./day21
 	./day22
 	./day24
+	./day25
 	
 )
