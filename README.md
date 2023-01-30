@@ -13,7 +13,7 @@ Days 20-25 : GO
 # Day 1
 J'ai essayé (et réussi) à faire en une ligne avec les particularités de JavaScript
 
-# Day 2-4
+# Day 2 - 4
 Par manque de temps, j'ai pris du retard, que j'ai rattrapé en faisant une nuit blanche (environ 2h par jour)
 
 # Day 5, 6 & 7
