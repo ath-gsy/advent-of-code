@@ -22,7 +22,7 @@ J'ai réussi à les faire au jour le jour, mais je n'ai pas tenu (au moins 3-4h 
 # Day 12 - 14
 J'ai sauté quelques jours, j'ai essayé de continuer, mais j'ai dû changer mon objectif global, et je me suis concentré sur en faire 2 par semaine, car je passais beaucoup trop de temps.
 
-# Day 20-24
+# Day 20 - 24
 Pendant les vacances, je m'y suis remis sérieusement, mais j'y ai passé tout mon temps (au moins 5-6h tous les jours, sans faire les parties 2...) et et je n'ai pas réussi  en finir 2 : le 20 (première fois que je codais en GO) et le 24 (où je n'ai pas pu utiliser la nuit...)
 
 # Day 25
